@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motion Demo Assignment — Computer Networks</title>
+<style>
+:root{
+  --bg:#080d1a; --bg2:#0b1224; --panel:#111a30; --panel2:#17213c; --line:#25314f;
+  --text:#e8edf9; --muted:#93a1c0; --dim:#6a779a;
+  --cyan:#3ad9c6; --amber:#f5b73f; --violet:#9183f8; --pink:#f26c9c;
+  --green:#4ade80; --red:#f8717a; --blue:#56a8f5;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Consolas,"Courier New",monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,"Helvetica Neue","Noto Sans Arabic","Dubai",Tahoma,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(900px 500px at 12% -5%, rgba(58,217,198,.10), transparent 60%),
+    radial-gradient(900px 500px at 88% 0%, rgba(145,131,248,.12), transparent 60%),
+    var(--bg);
+  color:var(--text); font-family:var(--sans); line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+a{color:var(--cyan)}
+code,.mono{font-family:var(--mono)}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky;top:0;z-index:60;background:rgba(8,13,26,.82);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line)}
+.topbar .inner{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:14px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:14.5px;letter-spacing:.2px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+.navlinks{display:flex;gap:4px;margin-inline-start:auto;flex-wrap:wrap}
+.navlinks a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 10px;border-radius:8px}
+.navlinks a:hover{color:var(--text);background:var(--panel2)}
+
+/* ---------- hero ---------- */
+.hero{padding:62px 0 40px}
+.kicker{font:600 12px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--cyan);margin:0 0 14px}
+h1{font-size:clamp(30px,5vw,50px);line-height:1.15;margin:0 0 16px;letter-spacing:-.5px}
+h1 .grad{background:linear-gradient(100deg,var(--cyan),var(--violet) 55%,var(--pink));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{font-size:17.5px;color:var(--muted);max-width:66ch;margin:0 0 26px}
+.chips{display:flex;gap:9px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 15px;font-size:13px;color:var(--muted)}
+.chip b{color:var(--text)}
+.chip.hi{border-color:rgba(58,217,198,.45);background:rgba(58,217,198,.08);color:var(--cyan)}
+
+/* ---------- sections ---------- */
+section{padding:46px 0;scroll-margin-top:66px}
+.sechead{display:flex;align-items:baseline;gap:12px;margin:0 0 8px;flex-wrap:wrap}
+.secnum{font:700 12px var(--mono);color:var(--dim);letter-spacing:.14em}
+h2{font-size:clamp(22px,3vw,30px);margin:0;letter-spacing:-.3px}
+.subtle{color:var(--muted);max-width:74ch;margin:6px 0 26px;font-size:15.5px}
+h3{font-size:18px;margin:0 0 10px}
+
+.card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);
+  border-radius:16px;padding:22px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr}}
+
+ul.clean{margin:0;padding-inline-start:20px}
+ul.clean li{margin:7px 0;color:var(--muted)}
+ul.clean li b,ul.clean li strong{color:var(--text)}
+.yes li::marker{color:var(--green)} .no li::marker{color:var(--red)}
+
+/* rubric */
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th,td{text-align:start;padding:11px 13px;border-bottom:1px solid var(--line)}
+th{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:700}
+td.pts{font-family:var(--mono);color:var(--amber);font-weight:700;white-space:nowrap;text-align:center;width:72px}
+tr.total td{border-bottom:none;font-weight:700;color:var(--text);background:rgba(58,217,198,.06)}
+tr.total td.pts{color:var(--cyan)}
+
+/* demo frame */
+.demo{background:linear-gradient(180deg,#0e1628,#0a1020);border:1px solid var(--line);border-radius:18px;
+  overflow:hidden;margin:0 0 22px}
+.demo .dh{display:flex;align-items:center;gap:11px;padding:13px 18px;border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.015);flex-wrap:wrap}
+.demo .dh .tag{font:700 10.5px var(--mono);letter-spacing:.12em;padding:3px 9px;border-radius:6px;
+  background:rgba(58,217,198,.12);color:var(--cyan);border:1px solid rgba(58,217,198,.3);white-space:nowrap}
+.demo .dh h3{margin:0;font-size:16px}
+.demo .dh .ch{margin-inline-start:auto;font:600 11.5px var(--mono);color:var(--dim)}
+.demo .body{padding:16px 18px 20px}
+canvas{display:block;width:100%;border-radius:12px;background:#070c17;border:1px solid #1b2742}
+.ctrls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 0}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:9px;
+  padding:7px 14px;font:600 13px var(--sans);cursor:pointer}
+.btn:hover{border-color:var(--cyan)}
+.btn.pri{background:rgba(58,217,198,.14);border-color:rgba(58,217,198,.45);color:var(--cyan)}
+select,input[type=text]{background:var(--panel2);border:1px solid var(--line);color:var(--text);
+  border-radius:9px;padding:7px 11px;font:500 13px var(--sans)}
+input[type=text].mono{font-family:var(--mono);letter-spacing:.14em;width:120px}
+label.sl{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);white-space:nowrap}
+input[type=range]{width:116px;accent-color:var(--cyan)}
+label.sl b{color:var(--text);font-family:var(--mono);min-width:38px;display:inline-block;text-align:center;direction:ltr;unicode-bidi:isolate}
+.readout{display:flex;gap:9px;flex-wrap:wrap;margin:13px 0 0}
+.stat{background:#0c1322;border:1px solid var(--line);border-radius:10px;padding:7px 12px;min-width:92px}
+.stat .k{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
+.stat .v{font:700 16px var(--mono);color:var(--text);direction:ltr;unicode-bidi:isolate}
+.note{margin:13px 0 0;padding:11px 14px;border-radius:10px;background:rgba(245,183,63,.07);
+  border:1px solid rgba(245,183,63,.25);color:#f6d79b;font-size:13.5px}
+.note b{color:var(--amber)}
+
+/* encapsulation demo */
+#encStage{position:relative;height:420px;background:#070c17;border:1px solid #1b2742;border-radius:12px;overflow:hidden}
+.stack{position:absolute;top:20px;width:150px}
+.stack.l{inset-inline-start:18px} .stack.r{inset-inline-end:18px}
+.lay{height:52px;margin-bottom:8px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);
+  display:flex;align-items:center;justify-content:center;font:600 12.5px var(--sans);color:var(--muted);
+  transition:all .3s ease}
+.lay.on{border-color:var(--cyan);background:rgba(58,217,198,.13);color:var(--cyan);box-shadow:0 0 18px rgba(58,217,198,.18)}
+.stack .ttl{font:700 11px var(--mono);letter-spacing:.1em;color:var(--dim);text-align:center;margin-bottom:9px}
+#pdu{position:absolute;display:flex;align-items:stretch;height:34px;transition:all .75s cubic-bezier(.45,.05,.3,1);
+  filter:drop-shadow(0 4px 14px rgba(0,0,0,.5))}
+.seg{display:flex;align-items:center;justify-content:center;font:700 10.5px var(--mono);
+  border:1px solid rgba(0,0,0,.35);padding:0 7px;white-space:nowrap;transition:all .4s ease}
+.seg:first-child{border-start-start-radius:7px;border-end-start-radius:7px}
+.seg:last-child{border-start-end-radius:7px;border-end-end-radius:7px}
+.seg.app{background:#2b3a66;color:#cbd9ff;min-width:66px}
+.seg.tr{background:var(--cyan);color:#04231f}
+.seg.net{background:var(--violet);color:#120a30}
+.seg.lnk{background:var(--amber);color:#2a1c02}
+#encWire{position:absolute;inset-inline-start:178px;inset-inline-end:178px;top:318px;height:2px;
+  background:linear-gradient(90deg,transparent,#3b4e7a 20%,#3b4e7a 80%,transparent)}
+#encCap{position:absolute;inset-inline:0;bottom:14px;text-align:center;font-size:13.5px;color:var(--muted);padding:0 20px}
+#encCap b{color:var(--text)}
+
+/* side-by-side comparison */
+.cmp .demo{margin:0}
+.mini{position:relative;height:326px;background:#070c17;border:1px solid #1b2742;border-radius:12px;
+  overflow:hidden;direction:ltr}
+.mtitle{position:absolute;inset-inline:0;top:11px;text-align:center;font:600 11.5px var(--sans);color:var(--dim)}
+.mtitle.q{color:var(--cyan);font-weight:700;font-size:12px}
+.mstack{position:absolute;top:46px;width:78px}
+.mstack.l{left:10px} .mstack.r{right:10px}
+.mlay{height:28px;margin-bottom:7px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);
+  display:flex;align-items:center;justify-content:center;font:600 9px var(--sans);color:var(--muted);
+  transition:all .3s ease}
+.mlay.on{border-color:var(--cyan);background:rgba(58,217,198,.15);color:var(--cyan);
+  box-shadow:0 0 14px rgba(58,217,198,.2)}
+.mwire{position:absolute;left:98px;right:98px;top:202px;height:1px;background:#2b3a5e}
+.mpdu{position:absolute;display:flex;align-items:stretch;height:24px;
+  transition:left .6s cubic-bezier(.45,.05,.3,1),top .6s cubic-bezier(.45,.05,.3,1);
+  filter:drop-shadow(0 3px 10px rgba(0,0,0,.5))}
+.mpdu .seg{font-size:8.5px;padding:0 5px}
+.mpdu .seg.app{min-width:46px}
+.mpdu .blank{width:76px;background:#3d4868;border:1px solid #4e5b80;border-radius:6px}
+.mcap{position:absolute;inset-inline:12px;bottom:14px;text-align:center;font-size:12.5px;
+  color:var(--muted);min-height:36px}
+.mcap b{color:var(--text)}
+.mcap .ctr{color:var(--dim);font-family:var(--mono);font-size:10.5px}
+.mcap.wall{text-align:start;font-size:10.5px;line-height:1.55;color:#64718f;bottom:12px}
+ul.flaws{margin:13px 0 0;padding-inline-start:18px;font-size:12.8px}
+ul.flaws li{margin:5px 0;color:var(--muted)}
+ul.flaws li b{color:var(--text)}
+.demo .dh .tag.bad{background:rgba(248,113,122,.12);color:var(--red);border-color:rgba(248,113,122,.33)}
+.verdict{margin-top:12px;padding:9px 12px;border-radius:9px;font:700 12px var(--mono);letter-spacing:.02em}
+.verdict.no{background:rgba(248,113,122,.09);border:1px solid rgba(248,113,122,.28);color:var(--red)}
+.verdict.yes{background:rgba(74,222,128,.09);border:1px solid rgba(74,222,128,.28);color:var(--green)}
+
+/* idea bank */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
+.fbtn{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:999px;
+  padding:6px 14px;font:600 12.5px var(--sans);cursor:pointer}
+.fbtn:hover{color:var(--text)}
+.fbtn.on{background:rgba(58,217,198,.14);border-color:rgba(58,217,198,.45);color:var(--cyan)}
+.ideas{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:13px}
+.idea{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);
+  border-radius:14px;padding:15px 16px}
+.idea:hover{border-color:#36476e}
+.idea .top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.idea .cht{font:700 10px var(--mono);letter-spacing:.1em;color:var(--dim)}
+.idea .diff{margin-inline-start:auto;font:700 10px var(--mono);letter-spacing:.07em;padding:2px 8px;border-radius:5px}
+.d1{background:rgba(74,222,128,.13);color:var(--green)}
+.d2{background:rgba(245,183,63,.13);color:var(--amber)}
+.d3{background:rgba(242,108,156,.13);color:var(--pink)}
+.diff.core{margin-inline-start:auto;background:rgba(58,217,198,.15);color:var(--cyan);border:1px solid rgba(58,217,198,.35)}
+.idea .diff{margin-inline-start:auto}
+.idea h4{margin:0 0 6px;font-size:15px;line-height:1.35}
+.idea p{margin:0;font-size:13.3px;color:var(--muted)}
+.idea p .mv{color:var(--cyan);font-weight:600}
+
+/* tools */
+.tool{display:flex;gap:13px;padding:14px 0;border-bottom:1px solid var(--line)}
+.tool:last-child{border-bottom:none}
+.tool .ic{width:38px;height:38px;flex:0 0 38px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font:700 13px var(--mono);color:var(--cyan)}
+.tool .tx h4{margin:0 0 3px;font-size:14.5px}
+.tool .tx p{margin:0;font-size:13.2px;color:var(--muted)}
+.badge{display:inline-block;font:700 9.5px var(--mono);letter-spacing:.08em;padding:2px 7px;border-radius:5px;
+  background:rgba(74,222,128,.13);color:var(--green);margin-inline-start:7px;vertical-align:1px}
+.badge.m{background:rgba(245,183,63,.13);color:var(--amber)}
+.badge.h{background:rgba(242,108,156,.13);color:var(--pink)}
+
+/* checklist */
+.check{list-style:none;margin:0;padding:0}
+.check li{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);font-size:14.5px;color:var(--muted)}
+.check li:last-child{border-bottom:none}
+.check .bx{width:19px;height:19px;flex:0 0 19px;border:1.5px solid var(--line);border-radius:5px;margin-top:3px}
+.check li b{color:var(--text)}
+
+.callout{border:1px solid rgba(145,131,248,.3);background:rgba(145,131,248,.07);border-radius:14px;padding:18px 20px}
+.callout h3{color:var(--violet)}
+@media(max-width:760px){
+  .stack{width:104px} .stack.l{inset-inline-start:10px} .stack.r{inset-inline-end:10px}
+  #encStage{height:400px} .lay{font-size:11px;height:48px}
+  #encWire{inset-inline-start:124px;inset-inline-end:124px}
+  .seg{font-size:9px;padding:0 4px} .seg.app{min-width:50px}
+  .demo .dh h3{font-size:14.5px} .demo .dh .ch{display:none}
+  .hero{padding:40px 0 30px}
+}
+footer{border-top:1px solid var(--line);margin-top:30px;padding:28px 0 46px;color:var(--dim);font-size:13px}
+.hr{height:1px;background:var(--line);margin:34px 0}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="inner">
+  <div class="brand"><span class="dot"></span><span>Motion Demo Assignment</span></div>
+  <nav class="navlinks">
+    <a href="#brief">Brief</a>
+    <a href="#rubric">Grading</a>
+    <a href="#examples">Example</a>
+    <a href="#ideas">Idea bank</a>
+    <a href="#tools">Tools</a>
+    <a href="#submit">Checklist</a>
+  </nav>
+</div></div>
+
+<div class="wrap">
+
+<div class="hero">
+  <p class="kicker">Computer Networks · Kurose &amp; Ross 8e · Ch 1–7</p>
+  <h1></span><span>Don't explain the network. <span class="grad">Make it move.</span></span></h1>
+  <p class="lede"><b>No talk, no slides, no narration.</b> What you hand in is a <b>motion demo that explains itself</b>: a viewer opens it, nobody speaks to them, and they walk away understanding the concept — <b>and still remembering it a year later</b> — a signal being transformed, a packet travelling, a queue filling up, a table learning itself. This page holds the brief, the grading, <b>one worked example</b> to show you the shape, and an idea bank to pick from.</p>
+  <div class="chips">
+    <span class="chip hi"><b>6</b> <span>points</span></span>
+    <span class="chip"><span>Group of</span> <b>3</b></span>
+    <span class="chip"><b>No slides · no narrator</b></span>
+    <span class="chip"><span>Deliverable:</span> <b>one self-explaining demo</b></span>
+  </div>
+</div>
+
+<section id="brief">
+  <div class="sechead"><span class="secnum">01</span><h2>What you have to deliver</h2></div>
+  <p class="subtle">Each group of three picks <b>one concept</b> from the course and builds a motion demo that <b>explains itself</b>. The test is simple: if I open your link while none of you are in the room, do I understand it? If yes, you have the marks.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h3 style="color:var(--green)">✓ Required</h3>
+      <ul class="clean yes">
+        
+        
+        
+        
+        <li><b>One working demo</b> — a link or a file that opens and runs on its own: an interactive page, or a video/GIF that loops.</li>
+        <li><b>An on-screen title</b> phrased as a question, shown before any motion: "What happens to a signal between the two ends?"</li>
+        <li><b>A caption line that changes with the motion</b>, saying what is happening right now. This replaces the presenter's voice.</li>
+        <li><b>Labels on every moving element</b> — layer names, header fields, numbers (seq, TTL, ms, Mbps).</li>
+        <li><b>Something that changes</b> — a button, a slider, or a before/after pair, with a visible hint that the viewer may try it.</li>
+        <li><b>A contributions panel</b> inside the demo: each student's name and <b>exactly what she did</b> ("Noura — built the queue animation and the delay maths"). Three lines, no more.</li>
+        <li><b>References</b> written inside the demo itself: chapter and slide number, plus any outside source.</li>
+        <li><b>It loops, or has a replay button</b> — the viewer can run it again without help.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">✗ Not accepted</h3>
+      <ul class="clean no">
+        
+        
+        
+        <li><b>A PowerPoint talk</b> or slides to be read out. There is no presentation slot and no presenter.</li>
+        <li><b>A demo that needs explaining</b> — if someone has to stand beside it and talk, it is not finished.</li>
+        <li><b>A wall of text</b> in the corner of the screen standing in for the narration. One changing line, not a paragraph.</li>
+        <li><b>Static figures</b> from the book or the course slides with no motion of your own.</li>
+        <li><b>A ready-made YouTube clip</b> — fine as a reference, not as the deliverable.</li>
+        <li><b>Unlabelled animation</b> — boxes sliding around with no idea what they are.</li>
+        <li><b>Several concepts</b> in one demo (TCP + DNS + routing together).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+  <h3>Six rules of a self-explaining demo</h3>
+  <div class="grid3" style="margin-top:14px">
+    <div class="card"><h4 style="margin:0 0 7px;color:var(--cyan)">01 · <span>One idea</span></h4>
+      <p style="margin:0;font-size:13.5px;color:var(--muted)">The animation answers one question. For example: "why does store-and-forward add delay?" — nothing more.</p></div>
+    <div class="card"><h4 style="margin:0 0 7px;color:var(--cyan)">02 · <span>Show state, not arrows</span></h4>
+      <p style="margin:0;font-size:13.5px;color:var(--muted)">An arrow says "it went". A growing queue, a filling table, a sliding window say <b>why</b>.</p></div>
+    <div class="card"><h4 style="margin:0 0 7px;color:var(--cyan)">03 · <span>Put numbers on it</span></h4>
+      <p style="margin:0;font-size:13.5px;color:var(--muted)">A delay counter in ms, seq/ack numbers, a TTL counting down, a loss rate. Numbers turn a drawing into a measurement.</p></div>
+    <div class="card"><h4 style="margin:0 0 7px;color:var(--cyan)">04 · <span>Give the audience a knob</span></h4>
+      <p style="margin:0;font-size:13.5px;color:var(--muted)">One slider (noise, send rate, buffer size) creates the strongest moment of the talk: "watch what happens when I turn this up."</p></div>
+    <div class="card"><h4 style="margin:0 0 7px;color:var(--cyan)">05 · <span>Break it on purpose</span></h4>
+      <p style="margin:0;font-size:13.5px;color:var(--muted)">The happy path is interesting once. Loss, collision, a full queue, a flipped bit — that is where the understanding happens.</p></div>
+    <div class="card" style="border-color:rgba(58,217,198,.4)"><h4 style="margin:0 0 7px;color:var(--cyan)">06 · <span>The silent test</span></h4>
+      <p style="margin:0;font-size:13.5px;color:var(--muted)">Hand the demo to someone who has not taken the course and <b>say nothing</b>. If she tells you what she saw, you are done. If she asks "what is this?", go back and fix it.</p></div>
+  </div>
+
+  <div class="hr"></div>
+  <div class="callout">
+    <h3>Making it unforgettable — not just understood</h3>
+    <p style="color:var(--muted);margin:0 0 14px;font-size:14.5px">The point of this assignment is not that your classmate understands while watching — it is that she still remembers after the exam, and after a year. Understanding fades; a mental picture stays. Five things that work:</p>
+    <ul class="clean">
+      
+      
+      <li><b>One strong image.</b> The whole concept collapses into a single scene your classmate could redraw from memory. IP addresses staying fixed while MAC addresses are swapped at every hop — that is a scene. Six scattered diagrams are not.</li>
+      <li><b>Break it.</b> Memory holds onto failure far better than success. Let the queue overflow, the bit flip, the segment vanish. The happy path is forgotten; the moment it fell apart is not.</li>
+      <li><b>Put both states side by side.</b> Before and after on one screen, not one after the other. The brain stores the difference, not the state.</li>
+      <li><b>A number that jumps.</b> A counter doubling or snapping to zero in front of them. A moving number sticks harder than any sentence.</li>
+      <li><b>Name it in a short phrase.</b> Put one line on screen that sums the concept up: "the bottleneck decides". That phrase is what comes back to her in the exam.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="rubric">
+  <div class="sechead"><span class="secnum">02</span><h2>Grading — 6 points</h2></div>
+  <p class="subtle">Every mark sits on the demo itself. <b>A full 2 points</b> answer one question: is it understood with nobody speaking?</p>
+  <div class="card" style="padding:6px 10px">
+  <table>
+    <thead><tr>
+      <th>Criterion</th>
+      <th>What we look for</th>
+      <th style="text-align:center">Pts</th>
+    </tr></thead>
+    <tbody>
+      <tr><td><b>It explains itself</b></td>
+        <td><span>A title as a question, a changing caption line, labels, and an order that makes sense — with no voice and nobody explaining.</span></td><td class="pts">2.0</td></tr>
+      <tr><td><b>Technical correctness</b></td>
+        <td><span>The concept matches the course: terminology, order of steps, header fields, numbers.</span></td><td class="pts">1.5</td></tr>
+      <tr><td><b>Motion quality</b></td>
+        <td><span>The motion explains rather than decorates, is well paced, readable on a small screen, and loops.</span></td><td class="pts">1.0</td></tr>
+      <tr><td><b>The moment that sticks</b></td>
+        <td><span>One strong moment — something breaking, a before/after contrast, a number jumping — that leaves the viewer with a mental picture they keep.</span></td><td class="pts">1.0</td></tr>
+      <tr><td><b>Contributions + references</b></td>
+        <td><span>A panel inside the demo: each student by name with exactly what she did, plus the references.</span></td><td class="pts">0.5</td></tr>
+      <tr class="total"><td>Total</td><td></td><td class="pts">6.0</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note" style="margin-top:16px">
+    <span><b>Note:</b> if the demo needs any spoken words to be understood, the "explains itself" mark drops. With no contributions panel the full 0.5 is lost — and we cannot credit each of you individually.</span>
+  </div>
+</section>
+
+<section id="examples">
+  <div class="sechead"><span class="secnum">03</span><h2>One worked example — the shape, not the content</h2></div>
+  <p class="subtle">This is one example, and one only. It runs live in your browser with nobody explaining it — read the title, watch the motion, follow the caption line as it changes. <b>You are not required to match it technically.</b> Take the <b>shape</b> from it: a question on top, labels on everything that moves, a caption line, a step counter, and a replay. The content — the concept you teach — is yours to build, and every other idea on this page is still unclaimed.</p>
+
+  
+  <!-- ===== DEMO C: encapsulation ===== -->
+  <div class="demo" id="demoEnc">
+    <div class="dh">
+      <span class="tag">EXAMPLE</span>
+      <h3>Encapsulation: a message growing headers on the way down, shedding them on the way up</h3>
+      <span class="ch">Ch 1 · Layering &amp; encapsulation</span>
+    </div>
+    <div class="body">
+      <div id="encStage">
+        <div class="stack l">
+          <div class="ttl">SENDER</div>
+          <div class="lay" data-l="app">Application</div>
+          <div class="lay" data-l="tr">Transport</div>
+          <div class="lay" data-l="net">Network</div>
+          <div class="lay" data-l="lnk">Link</div>
+        </div>
+        <div class="stack r">
+          <div class="ttl">RECEIVER</div>
+          <div class="lay" data-r="app">Application</div>
+          <div class="lay" data-r="tr">Transport</div>
+          <div class="lay" data-r="net">Network</div>
+          <div class="lay" data-r="lnk">Link</div>
+        </div>
+        <div id="encWire"></div>
+        <div id="pdu"></div>
+        <div id="encCap"></div>
+      </div>
+      <div class="ctrls">
+        <button class="btn pri" id="encPlay">⏸ <span>Pause</span></button>
+        <button class="btn" id="encStep">Step ▶</button>
+        <button class="btn" id="encBack">◀ Back</button>
+      </div>
+      <div class="note">
+        <span><b>Why it explains itself:</b> the caption underneath changes with every step and states <b>what just happened</b>, the active layer lights up, and the counter (3/9) shows where you are. That changing line is the stand-in for a presenter's voice — copy the idea into your own demo. All the motion here is plain CSS transitions.</span>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="hr"></div>
+  <h3>The same concept, built badly — and built well</h3>
+  <p class="subtle">Both panels below are animating the same thing, at the same step, at the same moment. One of them teaches you something in silence. The other is the most common way this assignment is failed: it looks like work, and it explains nothing. Watch them together for one full loop.</p>
+  <div class="grid2 cmp">
+
+    <div class="demo">
+      <div class="dh"><span class="tag bad">✗ LOSES THE MARK</span><h3>What most first attempts look like</h3></div>
+      <div class="body">
+        <div class="mini" id="miniBad">
+          <div class="mtitle">Encapsulation</div>
+          <div class="mstack l"><div class="mlay" data-bl="app">Application</div><div class="mlay" data-bl="tr">Transport</div><div class="mlay" data-bl="net">Network</div><div class="mlay" data-bl="lnk">Link</div></div>
+          <div class="mstack r"><div class="mlay" data-br="app">Application</div><div class="mlay" data-br="tr">Transport</div><div class="mlay" data-br="net">Network</div><div class="mlay" data-br="lnk">Link</div></div>
+          <div class="mwire"></div>
+          <div class="mpdu" id="badPdu"><div class="blank"></div></div>
+          <div class="mcap wall">Encapsulation is the process by which each layer of the protocol stack adds its own header to the data unit received from the layer above it, producing a new data unit which is then passed down to the next layer, and this operation is reversed in order at the receiving host, where every layer removes the header that was added by its peer layer on the sending side before passing the remaining data upwards.</div>
+        </div>
+        <ul class="flaws">
+          <li><b>No question on screen.</b> The viewer never learns what they are supposed to notice.</li>
+          <li><b>The moving block is unlabelled.</b> Something slides around; nothing says what it is or what was just added to it.</li>
+          <li><b>A fixed paragraph instead of a caption.</b> The viewer reads it once, then stops watching the animation entirely.</li>
+          <li><b>No active layer, no step counter.</b> There is no way to tell which part of the process you are looking at.</li>
+        </ul>
+        <div class="verdict no">Needs someone standing beside it to explain → the 2.0 is gone</div>
+      </div>
+    </div>
+
+    <div class="demo">
+      <div class="dh"><span class="tag">✓ EARNS IT</span><h3>The same animation, made to explain itself</h3></div>
+      <div class="body">
+        <div class="mini" id="miniGood">
+          <div class="mtitle q">What does each layer add to your message?</div>
+          <div class="mstack l"><div class="mlay" data-gl="app">Application</div><div class="mlay" data-gl="tr">Transport</div><div class="mlay" data-gl="net">Network</div><div class="mlay" data-gl="lnk">Link</div></div>
+          <div class="mstack r"><div class="mlay" data-gr="app">Application</div><div class="mlay" data-gr="tr">Transport</div><div class="mlay" data-gr="net">Network</div><div class="mlay" data-gr="lnk">Link</div></div>
+          <div class="mwire"></div>
+          <div class="mpdu" id="goodPdu"></div>
+          <div class="mcap" id="goodCap"></div>
+        </div>
+        <ul class="flaws">
+          <li><b>A question on top</b>, there before anything moves, and still there at the end.</li>
+          <li><b>Every piece is named</b> — ETH, IP, TCP, HTTP GET — so each new block means something.</li>
+          <li><b>One caption line that changes</b> with each step, saying what just happened. Nothing else is written.</li>
+          <li><b>The active layer lights up</b> and a counter shows how far along you are.</li>
+        </ul>
+        <div class="verdict yes">Understood with nobody talking → full 2.0</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="ideas">
+  <div class="sechead"><span class="secnum">04</span><h2>Idea bank</h2></div>
+  <p class="subtle">Every idea here is a <b>core networking fundamental</b> — no side details, no rare corner cases. The ones marked <span style="color:var(--cyan)">CORE</span> are the most important concepts in the whole course, and I'd encourage you to pick from those. Each card states <b class="mv" style="color:var(--cyan)">what moves</b> — the most important line, because it is the difference between a static picture and a demo. Difficulty: <span style="color:var(--green)">easy</span> / <span style="color:var(--amber)">medium</span> / <span style="color:var(--pink)">advanced</span>.</p>
+  <div class="filters" id="ideaFilters"></div>
+  <div class="ideas" id="ideaGrid"></div>
+</section>
+
+<section id="tools">
+  <div class="sechead"><span class="secnum">05</span><h2>Tools you can build this with</h2></div>
+  <p class="subtle">No programming required. The tools are ordered easiest first — and the easiest one earns full marks if the motion is clear.</p>
+  <div class="card">
+    <div class="tool"><div class="ic">PPT</div><div class="tx">
+      <h4>PowerPoint — Morph + Animation Pane <span class="badge">easiest</span></h4>
+      <p>Fastest route to a respectable result: duplicate the slide, nudge the box, set the transition to <b>Morph</b> — PowerPoint animates between them. Use <b>Appear/Wipe</b> for headers arriving and a <b>Motion Path</b> for a packet travelling. Then export the deck straight to MP4 — the video file is the deliverable, not a talk.</p>
+    </div></div>
+    <div class="tool"><div class="ic">PT</div><div class="tx">
+      <h4>Cisco Packet Tracer — Simulation mode <span class="badge">easy</span></h4>
+      <p>The strongest ready-made option: build a small topology, switch to <b>Simulation Mode</b> and run a ping — Packet Tracer animates PDU envelopes between devices and opens up each layer's contents. Screen-record the motion. Excellent for ARP, DHCP, switch learning and routing.</p>
+    </div></div>
+    <div class="tool"><div class="ic">CV</div><div class="tx">
+      <h4>Canva / Figma <span class="badge">easy</span></h4>
+      <p>Canva has ready animations and one-click GIF/MP4 export. Figma's <b>Smart Animate</b> tweens between frames — the same idea as Morph with tighter design control.</p>
+    </div></div>
+    <div class="tool"><div class="ic">WS</div><div class="tx">
+      <h4>Wireshark + <span class="mono">ping</span> / <span class="mono">traceroute</span> <span class="badge">easy</span></h4>
+      <p>Not an animation tool, but it gives you <b>real data</b> to animate: capture an actual three-way handshake and turn the real seq/ack numbers into your animation. The pairing of a real capture with an animation built on it earns the creativity point outright.</p>
+    </div></div>
+    <div class="tool"><div class="ic">GIF</div><div class="tx">
+      <h4>ScreenToGif / LICEcap / OBS Studio <span class="badge">easy</span></h4>
+      <p>For recording any on-screen motion as a GIF or MP4 that loops on its own — useful when your demo lives in a tool that cannot be shared as a link.</p>
+    </div></div>
+    <div class="tool"><div class="ic">&lt;/&gt;</div><div class="tx">
+      <h4>HTML + CSS + JavaScript (canvas) <span class="badge m">medium</span></h4>
+      <p>Its advantage is <b>interactive sliders</b> the viewer can try alone, which is exactly what earns the "moment that sticks" mark. Start with plain CSS transitions, like the example above — even with no canvas at all the result is strong.</p>
+    </div></div>
+    <div class="tool"><div class="ic">p5</div><div class="tx">
+      <h4>p5.js <span class="badge m">medium</span></h4>
+      <p>An online editor (editor.p5js.org) built for animated drawing in a few lines. Great for signal transformation, waveforms and collisions.</p>
+    </div></div>
+    <div class="tool"><div class="ic">Mn</div><div class="tx">
+      <h4>Manim (Python) <span class="badge h">advanced</span></h4>
+      <p>The library behind 3Blue1Brown's videos. Cinematic output, but it needs Python and time. Pick it only if one of you is comfortable with Python.</p>
+    </div></div>
+    <div class="tool"><div class="ic">GNS</div><div class="tx">
+      <h4>GNS3 / EVE-NG <span class="badge h">advanced</span></h4>
+      <p>Real emulators running actual system images. Very accurate, but they have no built-in animation like Packet Tracer — you would screen-record and overlay your own visuals.</p>
+    </div></div>
+  </div>
+</section>
+
+<section id="submit">
+  <div class="sechead"><span class="secnum">06</span><h2>Before you submit</h2></div>
+  <p class="subtle">You hand in <b>one link or one file</b>. There is no presentation slot, no slides, and nobody standing up to explain.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Checklist</h3>
+      <ul class="check">
+        <li><span class="bx"></span><span><b>The silent test</b>: someone outside the course opened it while you said nothing, and could tell you what she saw.</span></li>
+        <li><span class="bx"></span><span><b>One concept</b>, written on screen as a question before the motion starts.</span></li>
+        <li><span class="bx"></span><span><b>A caption line</b> that changes with the steps and says what is happening now.</span></li>
+        <li><span class="bx"></span><span>Every moving element carries a <b>label</b> (layer, field or number).</span></li>
+        <li><span class="bx"></span><span>It <b>loops</b> or has an obvious replay button.</span></li>
+        <li><span class="bx"></span><span><b>The contributions panel</b> is inside the demo: three lines, each student and what she did.</span></li>
+        <li><span class="bx"></span><span><b>References</b> inside the demo: chapter and slide number, plus any outside source.</span></li>
+        <li><span class="bx"></span><span>The link was <b>tested on another machine</b> and a phone, and runs with nothing to install.</span></li>
+      </ul>
+    </div>
+    <div>
+      <div class="callout">
+        <h3>Anatomy of a self-explaining demo</h3>
+        <ul class="clean">
+          
+          
+          
+          <li><b>1 · The question:</b> one line at the top, always visible. "Why does the queue grow when arrivals speed up?"</li>
+          <li><b>2 · The stage:</b> the drawing and the motion, with everything in it named.</li>
+          <li><b>3 · The caption line:</b> under the stage, changing with each step. This is your voice, written down.</li>
+          <li><b>4 · The counters:</b> moving numbers (sent, dropped, ms) that back up what the caption claims.</li>
+          <li><b>5 · The knob:</b> a slider or button, with a "try me" hint beside it.</li>
+          <li><b>6 · The footer:</b> contributions panel plus references.</li>
+        </ul>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>Contributions panel — copy this shape</h3>
+        <p style="color:var(--muted);font-size:13.5px;margin:0 0 12px">One line per student, with a concrete verb. "Helped" and "participated" do not count — write what you actually built.</p>
+        <div style="background:#0c1322;border:1px solid var(--line);border-radius:10px;padding:14px;font-family:var(--mono);font-size:12.5px;line-height:2">
+          <div style="color:var(--dim);font-size:10.5px;letter-spacing:.1em">WHO DID WHAT</div>
+          <div><span style="color:var(--cyan)">Noura</span> — built the queue animation and worked out the delay figures</div>
+          <div><span style="color:var(--amber)">Sarah</span> — designed the screen, wrote the caption lines and all the labels</div>
+          <div><span style="color:var(--violet)">Reem</span> — checked the concept against Ch 4, gathered the references, built the buffer slider</div>
+          <div style="color:var(--dim);margin-top:8px;font-size:11px">Kurose &amp; Ross 8e · Ch 4 · Output port queuing (slides 19–21)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>The examples on this page are plain HTML/CSS/JavaScript and run locally in the browser with no network access. Concepts follow <b>Computer Networking: A Top-Down Approach, 8th edition — Kurose &amp; Ross</b>, chapters 1–7 (course slide decks).</p>
+</footer>
+</div>
+<script>
+(function(){
+'use strict';
+function visible(el){
+  var r=el.getBoundingClientRect();
+  return r.bottom>-120 && r.top<window.innerHeight+120;
+}
+
+/* ======================================================================
+   DEMO C — encapsulation
+   ====================================================================== */
+(function(){
+  var stage=document.getElementById('encStage'); if(!stage) return;
+  stage.setAttribute('dir','ltr');
+  var pdu=document.getElementById('pdu'), cap=document.getElementById('encCap');
+  var SEG={app:['app','HTTP GET'],tr:['tr','TCP'],net:['net','IP'],lnk:['lnk','ETH']};
+  var STEPS=[
+    {s:['app'],side:'L',l:'app',
+     en:'<b>The application</b> creates the message: an HTTP GET.'},
+    {s:['tr','app'],side:'L',l:'tr',
+     en:'<b>Transport</b> prepends a TCP header (ports + seq) → it is now a <b>segment</b>.'},
+    {s:['net','tr','app'],side:'L',l:'net',
+     en:'<b>Network</b> prepends an IP header (source and destination address) → a <b>datagram</b>.'},
+    {s:['lnk','net','tr','app'],side:'L',l:'lnk',
+     en:'<b>Link</b> prepends an Ethernet header (MAC addresses) → a <b>frame</b>.'},
+    {s:['lnk','net','tr','app'],side:'W',l:null,
+     en:'The frame becomes <b>bits</b> travelling over the physical medium.'},
+    {s:['lnk','net','tr','app'],side:'R',l:'lnk',
+     en:"The receiver's link layer checks and strips the Ethernet header."},
+    {s:['net','tr','app'],side:'R',l:'net',
+     en:'The network layer removes the IP header and hands up the segment.'},
+    {s:['tr','app'],side:'R',l:'tr',
+     en:'Transport removes the TCP header and steers the data to the right port.'},
+    {s:['app'],side:'R',l:'app',
+     en:'<b>The application</b> at the far end receives exactly the same message. Each layer removed what its peer had added.'}
+  ];
+  var i=0, timer=null, playing=true;
+  function layerY(side,key){
+    var sel=side==='L'?'[data-l="'+key+'"]':'[data-r="'+key+'"]';
+    var el=stage.querySelector(sel); if(!el) return 232;
+    var off=(el.offsetParent&&el.offsetParent!==stage)?el.offsetParent.offsetTop:0;
+    return el.offsetTop+el.offsetHeight/2+off;
+  }
+  function render(){
+    var st=STEPS[i];
+    pdu.innerHTML=st.s.map(function(k){
+      return '<div class="seg '+SEG[k][0]+'">'+SEG[k][1]+'</div>';
+    }).join('');
+    stage.querySelectorAll('.lay').forEach(function(l){ l.classList.remove('on'); });
+    if(st.l){
+      var sel=st.side==='L'?'[data-l="'+st.l+'"]':'[data-r="'+st.l+'"]';
+      var el=stage.querySelector(sel); if(el) el.classList.add('on');
+    }
+    var sw=stage.clientWidth, sh=stage.clientHeight;
+    var stL=stage.querySelector('.stack.l'), stR=stage.querySelector('.stack.r');
+    var lw=stL?stL.offsetWidth:150, pad=18;
+    var x,y;
+    if(st.side==='L'){ x=pad+lw+Math.min(110,(sw-2*(pad+lw))/2); y=layerY('L',st.l); }
+    else if(st.side==='R'){ x=sw-pad-lw-Math.min(110,(sw-2*(pad+lw))/2); y=layerY('R',st.l); }
+    else { x=sw/2; y=318; }
+    pdu.style.left=x+'px'; pdu.style.top=y+'px';
+    pdu.style.transform='translate(-50%,-50%)';
+    cap.innerHTML=st.en+' <span style="color:var(--dim);font-family:var(--mono);font-size:11px">· '+(i+1)+'/'+STEPS.length+'</span>';
+  }
+  function next(d){ i=(i+(d||1)+STEPS.length)%STEPS.length; render(); }
+  function tick(){ if(playing && visible(stage)) next(1); }
+  function start(){ if(timer) clearInterval(timer); timer=setInterval(tick,2200); }
+  document.getElementById('encStep').addEventListener('click',function(){ next(1); start(); });
+  document.getElementById('encBack').addEventListener('click',function(){ next(-1); start(); });
+  var pb=document.getElementById('encPlay');
+  pb.addEventListener('click',function(){
+    playing=!playing; pb.firstChild.nodeValue=playing?'⏸ ':'▶ ';
+    pb.querySelector('span').textContent=playing?'Pause':'Play';
+  });
+  window.addEventListener('resize',render);
+  render(); start();
+})();
+
+/* ======================================================================
+   SIDE-BY-SIDE: the same step, built badly and built well
+   ====================================================================== */
+(function(){
+  var bad=document.getElementById('miniBad'), good=document.getElementById('miniGood');
+  if(!bad||!good) return;
+  var SEG={app:['app','HTTP GET'],tr:['tr','TCP'],net:['net','IP'],lnk:['lnk','ETH']};
+  var ST=[
+    {s:['app'],side:'L',l:'app',c:'The <b>application</b> creates the message.'},
+    {s:['tr','app'],side:'L',l:'tr',c:'<b>Transport</b> adds a TCP header → a segment.'},
+    {s:['net','tr','app'],side:'L',l:'net',c:'<b>Network</b> adds an IP header → a datagram.'},
+    {s:['lnk','net','tr','app'],side:'L',l:'lnk',c:'<b>Link</b> adds an Ethernet header → a frame.'},
+    {s:['lnk','net','tr','app'],side:'W',l:null,c:'The frame travels as <b>bits</b> over the medium.'},
+    {s:['lnk','net','tr','app'],side:'R',l:'lnk',c:'The receiver\'s link layer removes the Ethernet header.'},
+    {s:['net','tr','app'],side:'R',l:'net',c:'The network layer removes the IP header.'},
+    {s:['tr','app'],side:'R',l:'tr',c:'Transport removes the TCP header.'},
+    {s:['app'],side:'R',l:'app',c:'The <b>application</b> receives exactly the same message.'}
+  ];
+  var k=0, timer=null;
+  function pos(stage,side,layer,pref){
+    var sw=stage.clientWidth, sh=stage.clientHeight, st=stage.querySelector('.mstack.l');
+    var lw=st?st.offsetWidth:78, pad=10, x, y;
+    var gap=Math.min(74,Math.max(30,(sw-2*(pad+lw))/2));
+    if(side==='L'){ x=pad+lw+gap; }
+    else if(side==='R'){ x=sw-pad-lw-gap; }
+    else { x=sw/2; }
+    if(side==='W'){ y=202; }
+    else {
+      var el=stage.querySelector('[data-'+pref+'="'+layer+'"]');
+      var off=(el&&el.offsetParent&&el.offsetParent!==stage)?el.offsetParent.offsetTop:0;
+      y = el ? el.offsetTop+el.offsetHeight/2+off : 120;
+    }
+    return [x,y];
+  }
+  function render(){
+    var st=ST[k];
+    // --- the good one: labelled, highlighted, captioned ---
+    var gp=document.getElementById('goodPdu');
+    gp.innerHTML=st.s.map(function(n){return '<div class="seg '+SEG[n][0]+'">'+SEG[n][1]+'</div>';}).join('');
+    good.querySelectorAll('.mlay').forEach(function(l){ l.classList.remove('on'); });
+    if(st.l){
+      var sel='[data-'+(st.side==='L'?'gl':'gr')+'="'+st.l+'"]';
+      var el=good.querySelector(sel); if(el) el.classList.add('on');
+    }
+    document.getElementById('goodCap').innerHTML=st.c+
+      ' <span class="ctr">· '+(k+1)+'/'+ST.length+'</span>';
+    var g=pos(good,st.side,st.l,st.side==='L'?'gl':'gr');
+    gp.style.left=g[0]+'px'; gp.style.top=g[1]+'px'; gp.style.transform='translate(-50%,-50%)';
+    // --- the bad one: same motion, nothing explained ---
+    var bp=document.getElementById('badPdu');
+    var b=pos(bad,st.side,st.l,st.side==='L'?'bl':'br');
+    bp.style.left=b[0]+'px'; bp.style.top=b[1]+'px'; bp.style.transform='translate(-50%,-50%)';
+  }
+  function tick(){ if(visible(good)||visible(bad)){ k=(k+1)%ST.length; render(); } }
+  window.addEventListener('resize',render);
+  render(); timer=setInterval(tick,2000);
+})();
+
+/* ======================================================================
+   IDEA BANK
+   ====================================================================== */
+var IDEAS=[
+{ch:1,d:1,core:1,te:'Why we send packets instead of reserving a line',
+ me:'The same four conversations carried two ways: packets sharing the link whenever they have something to send, versus reserved slots sitting visibly empty.'},
+{ch:1,d:2,core:1,te:'How a signal is turned into bits and back',
+ me:'A string of bits becoming a waveform, crossing a channel that adds noise, and being read back at the far end — then raise the noise until the recovered bits start coming out wrong.'},
+{ch:1,d:2,te:'The four delays of one hop',
+ me:'One packet crossing one router with four counters ticking separately — processing, queueing, transmission, propagation — then change one setting and see which counter reacts.'},
+{ch:1,d:1,te:'Store-and-forward: why a router waits',
+ me:'The same packet crossing three routers twice: once waiting to arrive in full at each hop, once starting out early. Two stopwatches stop at different times.'},
+{ch:1,d:2,core:1,te:'Bandwidth vs latency: the bottleneck decides',
+ me:'A file crossing three links of different speeds; the slowest link alone sets the throughput, however fast the others are. Change each link and watch only one of them matter.'},
+{ch:1,d:2,te:'How your packet reaches a server far away',
+ me:'One packet climbing from a home link to an access ISP, through a regional network and an exchange point, down to the destination — the Internet as a network of networks.'},
+
+{ch:2,d:1,core:1,te:'DNS: turning a name into an address',
+ me:'A browser asking for a name and the query climbing the hierarchy until an address comes back — then the same lookup again, answered instantly from the cache.'},
+{ch:2,d:1,te:'HTTP: what the browser and the server actually say',
+ me:'A request line and a response with its status code travelling across, with the page appearing piece by piece as each object arrives.'},
+{ch:2,d:1,te:'Client–server vs peer-to-peer',
+ me:'The same file reaching twenty users: once from one server whose load grows with every user, once from peers who each start serving as soon as they have a piece.'},
+
+{ch:3,d:1,core:1,te:'TCP vs UDP: what reliability costs',
+ me:'The same image sent twice over a lossy link: UDP arrives fast with visible holes, TCP arrives whole but later. Show the picture rebuilding in both.'},
+{ch:3,d:1,core:1,te:'The three-way handshake',
+ me:'SYN, SYN-ACK, ACK with the real seq and ack numbers written on each arrow and the state name changing at both ends as each one lands.'},
+{ch:3,d:2,core:1,te:'Reliable transfer: ACK, loss, timeout, retransmit',
+ me:'A segment going missing, the timer running out on the sender, and the copy going again — the loop that makes TCP reliable, shown once with loss and once without.'},
+{ch:3,d:2,te:'Ports and sockets: how a segment finds its app',
+ me:'Several segments arriving at one host and each dropping into the right open application by its port numbers — two apps, two conversations, one network card.'},
+{ch:3,d:2,te:'Flow control vs congestion control',
+ me:'Two different problems side by side: a slow receiver whose buffer fills, and a busy network whose queue fills. Same sender, two reasons to slow down.'},
+
+{ch:4,d:1,core:1,te:'IP addresses and subnets',
+ me:'One address bar splitting into network part and host part as the prefix slides from /16 to /28, with the usable-host count updating as it moves.'},
+{ch:4,d:1,core:1,te:"Forwarding vs routing: a router's two jobs",
+ me:'The fast local decision for one packet, next to the slow background work of building the table that decision reads — the same router, two time scales.'},
+{ch:4,d:1,te:'Longest prefix match: reading a forwarding table',
+ me:'A destination address compared against each row, several rows matching at once, and the most specific one winning the outgoing link.'},
+{ch:4,d:2,te:'Queueing and packet loss at a router',
+ me:'Arrivals speeding up past what the outgoing link can carry: the queue grows, the buffer fills, and packets start being dropped. Give the viewer a slider for the arrival rate and let them cause it.'},
+{ch:4,d:1,te:'DHCP: how a device gets an address',
+ me:'A laptop joining with no address at all, the four messages going back and forth, and the lease appearing in the server table with a countdown.'},
+{ch:4,d:2,te:'NAT: why your laptop’s address is private',
+ me:'Three devices behind one public address, a row being created on the way out, and each reply finding its way back to the right private host.'},
+
+{ch:5,d:2,core:1,te:'Finding the shortest path',
+ me:'A small graph with link costs, the algorithm settling one node at a time, and the shortest-path tree forming edge by edge until every destination has a next hop.'},
+{ch:5,d:2,te:'Two ways to learn the network',
+ me:'One router that is told the whole map and computes alone, beside routers that only swap distances with their neighbours until everyone agrees.'},
+{ch:5,d:1,te:'Traceroute: seeing the path hop by hop',
+ me:'TTL counting down inside the datagram and a reply coming back from each hop in turn, filling the output list one line at a time.'},
+
+{ch:6,d:1,core:1,te:'MAC address vs IP address: why both',
+ me:'One packet crossing two networks: the IP addresses stay the same end to end while the MAC addresses are replaced at every hop. The clearest demo in the course.'},
+{ch:6,d:1,core:1,te:'ARP: finding the MAC behind an IP',
+ me:'The broadcast reaching every host on the LAN, exactly one answering, and the table gaining its row — then a second packet needing no broadcast at all.'},
+{ch:6,d:2,te:'How a switch learns, all by itself',
+ me:'An empty forwarding table filling from the frames the switch happens to see: the first frame floods everywhere, the reply is sent to one port only.'},
+{ch:6,d:2,te:'A shared medium and what goes wrong on it',
+ me:'Two stations that both sense a quiet wire and transmit together, the collision spreading, and each backing off for a different random time.'},
+{ch:6,d:1,te:'Catching a flipped bit',
+ me:'A bit flipping in transit, the receiver recomputing the check over the frame it got, and the mismatch firing — plus one case the check quietly misses.'},
+
+{ch:7,d:1,te:'Joining a Wi-Fi network',
+ me:'A phone hearing beacons from two access points, picking the stronger one, and exchanging the association messages before any data can flow.'},
+{ch:7,d:2,te:'Why wireless is harder than a cable',
+ me:'The same frame sent over copper and over air: distance weakening the signal, another device interfering, and the error rate climbing on only one of them.'},
+{ch:7,d:2,te:'Staying connected while you move',
+ me:'A device walking between two access points, the two signal bars crossing, and the connection moving across without the download stopping.'},
+
+{ch:6,d:3,core:1,te:'A day in the life of a web request',
+ me:'Everything in one continuous shot: the laptop gets an address, finds the gateway, resolves the name, opens the connection, and the page comes back. The capstone demo.'}
+];
+
+var CHN={1:'Ch 1 · Introduction',2:'Ch 2 · Application',3:'Ch 3 · Transport',
+         4:'Ch 4 · Network · Data plane',5:'Ch 5 · Network · Control plane',
+         6:'Ch 6 · Link layer & LANs',7:'Ch 7 · Wireless & mobile'};
+var DN={1:'EASY',2:'MEDIUM',3:'ADVANCED'};
+var activeCh=0;
+function renderIdeas(){
+  var fl=document.getElementById('ideaFilters'), gr=document.getElementById('ideaGrid');
+  if(!fl||!gr) return;
+  var chs=[0,1,2,3,4,5,6,7];
+  fl.innerHTML=chs.map(function(c){
+    var lbl = c===0 ? ('All ('+IDEAS.length+')') : 'Ch '+c;
+    return '<button class="fbtn'+(c===activeCh?' on':'')+'" data-ch="'+c+'">'+lbl+'</button>';
+  }).join('');
+  fl.querySelectorAll('.fbtn').forEach(function(b){
+    b.addEventListener('click',function(){ activeCh=+b.getAttribute('data-ch'); renderIdeas(); });
+  });
+  var list=IDEAS.filter(function(i){ return activeCh===0 || i.ch===activeCh; });
+  gr.innerHTML=list.map(function(i){
+    return '<div class="idea"><div class="top"><span class="cht">'+CHN[i.ch]+
+      '</span>'+(i.core?'<span class="diff core">CORE</span>':'')+
+      '<span class="diff d'+i.d+'"'+(i.core?' style="margin-inline-start:6px"':'')+'>'+DN[i.d]+'</span></div>'+
+      '<h4>'+i.te+'</h4>'+
+      '<p><span class="mv">What moves: </span>'+i.me+'</p></div>';
+  }).join('');
+  var h=document.querySelector('#ideas h2');
+  if(h) h.textContent = 'Idea bank — '+IDEAS.length+' networking fundamentals';
+}
+
+/* ============ init ============ */
+renderIdeas();
+})();
+</script>
+</body>
+</html>
